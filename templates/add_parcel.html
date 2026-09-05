@@ -1,0 +1,90 @@
+{% extends "base.html" %}
+{% block title %}Add Parcel - XShip{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1>Add New Parcel</h1>
+    <a href="{{ url_for('shipments') }}" class="btn-secondary">
+        <i class="fas fa-arrow-left"></i> Back to Shipments
+    </a>
+</div>
+
+<div class="form-container">
+    <form method="POST" class="parcel-form">
+        <!-- Sender Details -->
+        <div class="form-section">
+            <h3><i class="fas fa-user"></i> Sender Details</h3>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Name *</label>
+                    <input type="text" name="sender_name" required>
+                </div>
+                <div class="form-group">
+                    <label>Mobile *</label>
+                    <input type="tel" name="sender_mobile" required>
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Address</label>
+                <textarea name="sender_address" rows="3"></textarea>
+            </div>
+        </div>
+
+        <!-- Receiver Details -->
+        <div class="form-section">
+            <h3><i class="fas fa-user-check"></i> Receiver Details</h3>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Name *</label>
+                    <input type="text" name="receiver_name" required>
+                </div>
+                <div class="form-group">
+                    <label>Mobile *</label>
+                    <input type="tel" name="receiver_mobile" required>
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Address</label>
+                <textarea name="receiver_address" rows="3"></textarea>
+            </div>
+        </div>
+
+        <!-- Parcel Details -->
+        <div class="form-section">
+            <h3><i class="fas fa-box"></i> Parcel Details</h3>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Parcel Type</label>
+                    <select name="parcel_type">
+                        <option value="document">Document</option>
+                        <option value="parcel">Parcel</option>
+                        <option value="fragile">Fragile</option>
+                        <option value="electronics">Electronics</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Parcel Name/Description</label>
+                    <input type="text" name="parcel_name">
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Out Date</label>
+                    <input type="date" name="out_date">
+                </div>
+                <div class="form-group">
+                    <label>Expected Delivery</label>
+                    <input type="date" name="expected_delivery">
+                </div>
+            </div>
+        </div>
+
+        <div class="form-actions">
+            <button type="submit" class="btn-primary">
+                <i class="fas fa-save"></i> Create Parcel
+            </button>
+            <a href="{{ url_for('shipments') }}" class="btn-secondary">Cancel</a>
+        </div>
+    </form>
+</div>
+{% endblock %}

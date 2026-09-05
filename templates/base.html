@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}XShip - Courier Management{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+</head>
+<body >
+    <!-- FIXED HEADER -->
+    <header class="header">
+        <div class="header-left">
+            <button class="mobile-menu-toggle" onclick="toggleSidebar()">
+                <i class="fas fa-bars"></i>
+            </button>
+            <h2>XShip <span class="tagline">{{ role_quotes|default('Fast Delivery') }}</span></h2>
+        </div>
+        <div class="header-right">
+            <!-- FIXED SEARCH -->
+            <div class="search-box">
+                <i class="fas fa-search"></i>
+                <input type="text" id="globalSearch" placeholder="Search tracking..." onkeypress="handleGlobalSearch(event)">
+            </div>
+            <!-- FIXED NOTIFICATIONS -->
+            <div class="notifications" onclick="toggleNotifications()">
+                <i class="fas fa-bell"></i>
+                <span class="badge" id="notificationBadge">3</span>
+            </div>
+            <!-- FIXED PROFILE -->
+            <div class="user-profile" onclick="toggleProfile()">
+                <img src="https://ui-avatars.com/api/?name={{ session.user_name|default('User') }}&background=667eea&color=fff&size=40&bold=true" alt="Profile">
+                <span id="userName">{{ session.user_name|default('User') }}</span>
+                <i class="fas fa-chevron-down" id="profileArrow"></i>
+            </div>
+            <!-- FIXED LOGOUT -->
+            <a href="{{ url_for('logout') }}" class="logout-btn" onclick="confirmLogout()">
+                <i class="fas fa-sign-out-alt"></i> Logout
+            </a>
+        </div>
+    </header>
+
+    <!-- NOTIFICATION DROPDOWN -->
+    <div id="notificationsDropdown" class="dropdown-menu" style="display:none">
+        <div class="dropdown-header">Notifications (3)</div>
+        <a href="#" class="dropdown-item">
+            <i class="fas fa-truck"></i> New delivery assigned
+            <span class="dropdown-time">2 min ago</span>
+        </a>
+        <a href="#" class="dropdown-item">
+            <i class="fas fa-check-circle"></i> Parcel XSHIP001 delivered
+            <span class="dropdown-time">5 min ago</span>
+        </a>
+        <a href="#" class="dropdown-item">
+            <i class="fas fa-bell"></i> Payment received
+            <span class="dropdown-time">1 hour ago</span>
+        </a>
+    </div>
+
+    <!-- PROFILE DROPDOWN -->
+    <div id="profileDropdown" class="dropdown-menu" style="display:none">
+        <div class="dropdown-header">
+            <img src="https://ui-avatars.com/api/?name={{ session.user_name|default('User') }}&background=667eea&color=fff&size=50&bold=true" alt="Profile">
+            <div>
+                <div id="profileName">{{ session.user_name|default('User') }}</div>
+                <div id="profileRole">{{ session.user_role|default('Staff') }}</div>
+            </div>
+        </div>
+        <a href="#" class="dropdown-item"><i class="fas fa-user"></i> Profile</a>
+        <a href="#" class="dropdown-item"><i class="fas fa-cog"></i> Settings</a>
+        <a href="{{ url_for('logout') }}" class="dropdown-item danger"><i class="fas fa-sign-out-alt"></i> Logout</a>
+    </div>
+
+    <div class="container">
+        <!-- FIXED SIDEBAR -->
+        <aside class="sidebar" id="sidebar">
+            <div class="logo">
+                <h3><i class="fas fa-shipping-fast"></i> XShip</h3>
+            </div>
+            <nav class="nav">
+                <a href="{{ url_for('dashboard') }}" class="{% if request.endpoint == 'dashboard' %}active{% endif %}">
+                    <i class="fas fa-tachometer-alt"></i> Dashboard
+                </a>
+                <a href="{{ url_for('shipments') }}" class="{% if request.endpoint == 'shipments' %}active{% endif %}">
+                    <i class="fas fa-boxes"></i> Shipments
+                </a>
+                <a href="{{ url_for('tracking_page') }}" class="{% if request.endpoint in ['tracking_page', 'tracking'] %}active{% endif %}">
+                    <i class="fas fa-map-marker-alt"></i> Tracking
+                </a>
+                <a href="{{ url_for('delivery') }}" class="{% if request.endpoint == 'delivery' %}active{% endif %}">
+                    <i class="fas fa-truck"></i> Delivery Ops
+                </a>
+                <a href="{{ url_for('payments') }}" class="{% if request.endpoint == 'payments' %}active{% endif %}">
+                    <i class="fas fa-credit-card"></i> Payments
+                </a>
+                <a href="{{ url_for('analytics') }}" class="{% if request.endpoint == 'analytics' %}active{% endif %}">
+                    <i class="fas fa-chart-bar"></i> Analytics
+                </a>
+            </nav>
+            <div class="quick-actions">
+                <h4>Quick Actions</h4>
+                <a href="{{ url_for('add_parcel') }}" class="btn-primary">
+                    <i class="fas fa-plus"></i> Add Parcel
+                </a>
+                <a href="{{ url_for('tracking_page') }}" class="btn-secondary">
+                    <i class="fas fa-search"></i> Track
+                </a>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            {% with messages = get_flashed_messages() %}
+                {% if messages %}
+                    {% for message in messages %}
+                        <div class="alert alert-success" style="padding:1rem;margin-bottom:1rem;background:rgba(46,213,115,.1);border:1px solid #2ed573;border-radius:10px;color:#2d3748">
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+            {% block content %}{% endblock %}
+        </main>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    {% block scripts %}{% endblock %}
+</body>
+</html>

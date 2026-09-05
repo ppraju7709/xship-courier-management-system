@@ -1,0 +1,107 @@
+{% extends "base.html" %}
+{% block title %}Tracking - XShip{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1>📦 Track Parcel</h1>
+</div>
+
+{% if parcel %}
+<div class="card">
+    <div style="display:grid;grid-template-columns:1fr auto;gap:2rem;align-items:start">
+        <div>
+            <h2>{{ parcel.tracking_number }}</h2>
+            <div class="status-badge {{ parcel.status }}" style="font-size:1.2rem;padding:1rem 2rem;display:inline-block">
+                {{ parcel.status.replace('_', ' ').title() }}
+            </div>
+            
+            <div class="details-grid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:1.5rem;margin-top:2rem">
+                <div class="form-section">
+                    <h3><i class="fas fa-user"></i> Sender</h3>
+                    <p><strong>{{ parcel.sender_name or 'N/A' }}</strong></p>
+                    <p>{{ parcel.sender_mobile or '' }}<br>{{ parcel.sender_address or '' }}</p>
+                </div>
+                <div class="form-section">
+                    <h3><i class="fas fa-user-check"></i> Receiver</h3>
+                    <p><strong>{{ parcel.receiver_name or 'N/A' }}</strong></p>
+                    <p>{{ parcel.receiver_mobile or '' }}<br>{{ parcel.receiver_address or '' }}</p>
+                </div>
+            </div>
+        </div>
+        
+        <div style="min-width:300px">
+            <div class="form-section">
+                <h3><i class="fas fa-info-circle"></i> Details</h3>
+                <p><strong>Type:</strong> {{ parcel.parcel_type or 'Standard' }}<br>
+                   <strong>Item:</strong> {{ parcel.parcel_name or 'Parcel' }}<br>
+                   <strong>Out Date:</strong> {{ parcel.out_date or 'N/A' }}<br>
+                   <strong>Expected:</strong> {{ parcel.expected_delivery or 'TBD' }}<br>
+                   {% if parcel.delivered_date %}<strong>Delivered:</strong> {{ parcel.delivered_date }}{% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Timeline -->
+<div class="card">
+    <h2>📋 Delivery Timeline</h2>
+    <div class="timeline">
+        <div class="timeline-item {{ 'active' if parcel.status in ['delivered'] else '' }}">
+            <div class="timeline-icon delivered"><i class="fas fa-check"></i></div>
+            <div class="timeline-content">
+                <h4>Delivered</h4>
+                <p>Successfully delivered to recipient</p>
+                {% if parcel.delivered_date %}<small>{{ parcel.delivered_date }}</small>{% endif %}
+            </div>
+        </div>
+        <div class="timeline-item {{ 'active' if parcel.status in ['out_for_delivery', 'delivered'] else '' }}">
+            <div class="timeline-icon out-delivery"><i class="fas fa-shipping-fast"></i></div>
+            <div class="timeline-content">
+                <h4>Out for Delivery</h4>
+                <p>On the way to final destination</p>
+            </div>
+        </div>
+        <div class="timeline-item {{ 'active' if parcel.status in ['in_transit', 'out_for_delivery', 'delivered'] else '' }}">
+            <div class="timeline-icon in-transit"><i class="fas fa-truck"></i></div>
+            <div class="timeline-content">
+                <h4>In Transit</h4>
+                <p>Moving through sorting facility</p>
+            </div>
+        </div>
+        <div class="timeline-item {{ 'active' if parcel.status in ['picked', 'in_transit', 'out_for_delivery', 'delivered'] else '' }}">
+            <div class="timeline-icon picked"><i class="fas fa-hand-paper"></i></div>
+            <div class="timeline-content">
+                <h4>Picked Up</h4>
+                <p>Collected from sender</p>
+            </div>
+        </div>
+        <div class="timeline-item {{ 'active' if parcel.status == 'pending' else '' }}">
+            <div class="timeline-icon pending"><i class="fas fa-clock"></i></div>
+            <div class="timeline-content">
+                <h4>Pending</h4>
+                <p>Awaiting pickup</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% else %}
+<div style="text-align:center;padding:4rem">
+    <i class="fas fa-search" style="font-size:6rem;color:#a0aec0;margin-bottom:2rem"></i>
+    <h2>Enter Tracking Number</h2>
+    <p>Track your parcel status instantly</p>
+    <div style="max-width:400px;margin:2rem auto">
+        <input type="text" id="quickTrack" placeholder="XSHIP123456" style="width:70%;padding:1rem;font-size:1.1rem">
+        <button onclick="quickTrack()" class="btn-primary" style="width:28%;padding:1rem">Track</button>
+    </div>
+</div>
+{% endif %}
+
+<script>
+function quickTrack() {
+    const tracking = document.getElementById('quickTrack').value.trim().toUpperCase();
+    if (tracking) {
+        window.location.href = `/tracking/${tracking}`;
+    }
+}
+</script>
+{% endblock %}

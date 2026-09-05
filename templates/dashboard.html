@@ -1,0 +1,156 @@
+{% extends "base.html" %}
+{% block title %}Dashboard - XShip{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1>🚀 Dashboard</h1>
+    <p>Your shipments ({{ stats.total }})</p>
+</div>
+
+<!-- 🔥 ZERO DATA → WELCOME SCREEN -->
+{% if stats.total == 0 %}
+<div style="text-align:center;padding:6rem 2rem">
+    <div style="font-size:8rem;margin-bottom:2rem;color:#e2e8f0">
+        <i class="fas fa-shipping-fast"></i>
+    </div>
+    <h2>Welcome to XShip!</h2>
+    <p style="color:#64748b;font-size:1.2rem;margin-bottom:3rem">
+        Add your first shipment to see live stats, charts & cards
+    </p>
+    <a href="{{ url_for('add_parcel') }}" class="btn-primary" style="padding:1.5rem 3rem;font-size:1.2rem">
+        <i class="fas fa-plus"></i> Add First Shipment
+    </a>
+</div>
+{% else %}
+<!-- 🔥 LIVE STATS CARDS -->
+<div class="stats-grid">
+    <div class="stat-card">
+        <div class="stat-icon"><i class="fas fa-boxes"></i></div>
+        <div class="stat-info">
+            <h3 id="total-stat">{{ stats.total }}</h3>
+            <p>Total Shipments</p>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon green"><i class="fas fa-check-circle"></i></div>
+        <div class="stat-info">
+            <h3 id="delivered-stat">{{ stats.delivered }}</h3>
+            <p>Delivered</p>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon yellow"><i class="fas fa-clock"></i></div>
+        <div class="stat-info">
+            <h3 id="pending-stat">{{ stats.pending }}</h3>
+            <p>Pending</p>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon blue"><i class="fas fa-truck"></i></div>
+        <div class="stat-info">
+            <h3 id="transit-stat">{{ stats.in_transit }}</h3>
+            <p>In Transit</p>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon red"><i class="fas fa-times-circle"></i></div>
+        <div class="stat-info">
+            <h3 id="cancelled-stat">{{ stats.cancelled }}</h3>
+            <p>Cancelled</p>
+        </div>
+    </div>
+</div>
+
+<!-- 🔥 LIVE CHART -->
+<div class="card">
+    <h2>📊 Live Status Chart</h2>
+    <div id="statusChart" style="height: 350px;"></div>
+</div>
+
+<!-- 🔥 YOUR PARCELS TABLE -->
+<div class="card">
+    <h2>Your Shipments ({{ parcels|length }})</h2>
+    <div class="table-responsive">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Tracking</th>
+                    <th>Sender → Receiver</th>
+                    <th>Type</th>
+                    <th>Status</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody id="parcels-tbody">
+                {% for parcel in parcels %}
+                <tr data-parcel-id="{{ parcel.id }}">
+                    <td><strong>{{ parcel.tracking_number }}</strong></td>
+                    <td>{{ parcel.sender_name }} → {{ parcel.receiver_name }}</td>
+                    <td>{{ parcel.parcel_type|title }}</td>
+                    <td><span class="status-badge {{ parcel.status }}">{{ parcel.status.title() }}</span></td>
+                    <td>
+                        <a href="{{ url_for('tracking', tracking_number=parcel.tracking_number) }}" class="btn-primary">
+                            Track
+                        </a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endif %}
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+// 🔥 LIVE UPDATES - PERFECT!
+let chart;
+
+document.addEventListener('DOMContentLoaded', function() {
+    if ({{ stats.total }} > 0) {
+        initLiveChart();
+        startLiveRefresh();
+    }
+});
+
+function initLiveChart() {
+    chart = new ApexCharts(document.querySelector("#statusChart"), {
+        series: [{{ stats.delivered }}, {{ stats.pending }}, {{ stats.in_transit }}, {{ stats.cancelled }}],
+        chart: { type: 'donut', height: 350 },
+        labels: ['Delivered', 'Pending', 'In Transit', 'Cancelled'],
+        colors: ['#2ed573', '#ffa502', '#3742fa', '#ff6b6b']
+    });
+    chart.render();
+}
+
+function startLiveRefresh() {
+    setInterval(updateStats, 2000);  // Every 2s
+}
+
+function updateStats() {
+    fetch('/api/stats')
+    .then(r => r.json())
+    .then(data => {
+        // Update cards with animation
+        ['total', 'delivered', 'pending', 'transit', 'cancelled'].forEach((key, i) => {
+            const el = document.getElementById(key + '-stat');
+            if (el) {
+                const newVal = data[key] || 0;
+                if (el.textContent != newVal) {
+                    el.textContent = newVal;
+                    el.style.color = '#2ed573';
+                    setTimeout(() => el.style.color = '', 500);
+                }
+            }
+        });
+        
+        // Update chart
+        if (chart) {
+            chart.updateSeries([data.delivered, data.pending, data.in_transit, data.cancelled]);
+        }
+    });
+}
+</script>
+{% endblock %}

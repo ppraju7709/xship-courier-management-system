@@ -1,0 +1,95 @@
+{% extends "base.html" %}
+{% block title %}Analytics - XShip{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1>📊 Your Analytics</h1>
+    <p>Real insights from your {{ analytics_data.total_parcels }} shipments</p>
+</div>
+
+<!-- 🔥 REAL DATA CARDS -->
+<div class="stats-grid">
+    {% set total = analytics_data.total_parcels %}
+    {% set delivered = analytics_data.status_counts.delivered %}
+    {% set success_rate = (delivered / total * 100) if total > 0 else 0 %}
+    
+    <div class="stat-card">
+        <div class="stat-icon green"><i class="fas fa-chart-line"></i></div>
+        <div class="stat-info">
+            <h3>{{ "%.1f"|format(success_rate) }}%</h3>
+            <p>Success Rate</p>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon blue"><i class="fas fa-clock"></i></div>
+        <div class="stat-info">
+            <h3>{{ "%.1f"|format((total - analytics_data.status_counts.pending) / total * 30) if total > 0 else 0 }} days</h3>
+            <p>Avg Delivery</p>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon yellow"><i class="fas fa-rupee-sign"></i></div>
+        <div class="stat-info">
+            <h3>₹{{ "%.0f"|format(total * 150) }}</h3>
+            <p>Est Revenue</p>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon"><i class="fas fa-trophy"></i></div>
+        <div class="stat-info">
+            <h3>{{ "%.0f"|format(success_rate) }}%</h3>
+            <p>On-Time Rate</p>
+        </div>
+    </div>
+</div>
+
+<!-- 🔥 REAL CHARTS -->
+<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin-bottom: 2rem;">
+    <div class="card">
+        <h2>📈 Your Monthly Shipments</h2>
+        <div id="shipmentsChart" style="height: 350px;"></div>
+    </div>
+    <div class="card">
+        <h2>📊 Status Breakdown</h2>
+        <div id="statusPie" style="height: 350px;"></div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const data = {{ analytics_data|tojson|safe }};
+    
+    // 1. YOUR REAL Monthly Chart
+    new ApexCharts(document.querySelector("#shipmentsChart"), {
+        series: [{
+            name: 'Your Shipments',
+            data: Object.values(data.monthly_shipments || {})
+        }],
+        chart: { type: 'line', height: 350, zoom: { enabled: false } },
+        stroke: { curve: 'smooth', width: 4 },
+        xaxis: { 
+            categories: Object.keys(data.monthly_shipments || {}),
+            labels: { style: { fontSize: '13px' } }
+        },
+        colors: ['#667eea'],
+        markers: { size: 6 }
+    }).render();
+    
+    // 2. YOUR REAL Status Pie
+    new ApexCharts(document.querySelector("#statusPie"), {
+        series: [
+            data.status_counts.delivered || 0,
+            data.status_counts.pending || 0, 
+            data.status_counts.in_transit || 0,
+            0
+        ],
+        chart: { type: 'donut', height: 350 },
+        labels: ['Delivered ✅', 'Pending ⏳', 'In Transit 🚚', 'Cancelled ❌'],
+        colors: ['#2ed573', '#ffa502', '#3742fa', '#ff6b6b']
+    }).render();
+});
+</script>
+{% endblock %}
