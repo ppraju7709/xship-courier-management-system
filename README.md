@@ -276,8 +276,8 @@ Screenshots of the application can be added here to demonstrate the user interfa
 ### Delivery Management
 ![Delivery Management](screenshots/delivery.png)
 
-### Analytics Dashboard
-![XShip Analytics](screenshots/analytics.png)
+### Payments Dashboard
+![XShip Analytics](screenshots/payments.png)
 
 ---
 
