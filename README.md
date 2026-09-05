@@ -259,24 +259,25 @@ Dashboard
 Screenshots of the application can be added here to demonstrate the user interface.
 
 ### Login Page
-
-_Add screenshot here_
+![XShip Login Page](screenshots/login.png)
 
 ### Dashboard
+![XShip Dashboard](screenshots/dashboard.png)
 
-_Add screenshot here_
+### Shipment Management
+![Shipment Management](screenshots/shipments.png)
 
-### Parcel Management
-
-_Add screenshot here_
+### Add Parcel
+![Add Parcel](screenshots/add-parcel.png)
 
 ### Shipment Tracking
+![Shipment Tracking](screenshots/tracking.png)
 
-_Add screenshot here_
+### Delivery Management
+![Delivery Management](screenshots/delivery.png)
 
-### Analytics
-
-_Add screenshot here_
+### Analytics Dashboard
+![XShip Analytics](screenshots/analytics.png)
 
 ---
 
